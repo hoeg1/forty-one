@@ -755,11 +755,57 @@ class Com1 {
   }
 }
 
+// 合法手をスコア優先で乱択
+class RndCom {
+  constructor(name) {
+    this.name = name;
+  }
+  think(round, hand, _info, _n_ophand, n_ba, pass, score, view) {
+    if (round == 4 && pass && score[0] < score[1]) {
+      view.set_face('www');
+      return 0n;
+    }
+    const lst = [ {pt: -1, bit: 0n } ];
+    for (const card of hand.ranks()) {
+      const ba = new Rule41(n_ba);
+      ba.add(card.rank);
+      const sum = ba.get_sum();
+      if (sum <= 41) {
+        lst.push({
+          pt: ba.sum2pt(sum),
+          bit: card.bit
+        });
+      }
+    }
+    lst.sort((a, b) => b.pt - a.pt);
+    switch (lst[0].pt) {
+      case -1:
+        if (pass) view.set_face('mu');
+        else if (hand.is_empty()) view.set_face('red');
+        else view.set_face('oops');
+        break;
+      case 1:
+        if (pass) view.set_face('yoso');
+        else view.set_face('yatta');
+        break;
+      case 2:
+        if (pass) view.set_facd('be');
+        else view.set_face('wink');
+        break;
+      default:
+        view.set_face(['w','def'][ Math.trunc(Math.random()*2) ]);
+        break;
+    }
+    return lst[0].bit;
+  }
+}
+
 const com_list = [
-  { name: 'アリス', load: function() { return new Com0(this.name, 0); } },
-  { name: 'ビリー', load: function() { return new Com0(this.name, 1); } },
-  { name: 'クリス', load: function() { return new Com1(this.name, 0); } },
-  { name: 'デイブ', load: function() { return new Com1(this.name, 1); } },
+  { name: 'アッホ', load: function() { return new RndCom(this.name, 0); } },
+  { name: 'ビリー', load: function() { return new Com0(this.name, 0); } },
+  { name: 'クリス', load: function() { return new Com0(this.name, 1); } },
+  { name: 'デビー', load: function() { return new Com1(this.name, 0); } },
+  { name: 'エリス', load: function() { return new Com1(this.name, 1); } },
 ];
 
 
