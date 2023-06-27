@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>41 forty-one</title>
+<style>
+
+.suit_heart   { color: orangered; }
+.suit_heart::before { white-space:pre; content: "\2665\A"; }
+.suit_diamond { color: darkorange; }
+.suit_diamond::before { white-space:pre; content: "\2666\A"; }
+.suit_club    { color: darkgreen; }
+.suit_club::before { white-space:pre; content: "\2663\A"; }
+.suit_spade   { color: midnightblue; }
+.suit_spade::before { white-space:pre; content: "\2660\A"; }
+
+:root {
+  --base-col: wheat;
+}
+
+body {
+  margin: 0px;
+  background-color: var(--base-col);
+}
+
+#game_board {
+  background-color: var(--base-col);
+  padding: 1rem;
+  width: 465px;
+  height: 425px;
+}
+
+.player_hand {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 92px;
+  justify-content: center;
+}
+
+.player_card {
+  font-family: sans-serif;
+  border-radius: 8px;
+  border: 2px solid blue;
+  background-color: white;
+  width: 64px;
+  height: 90px;
+  margin-right: 6px;
+}
+
+.player_card div {
+  line-height: 1em;
+  font-size: 32px;
+}
+
+.player_card[disabled] {
+  border: 2px solid black;
+  background-color: whitesmoke;
+}
+
+.com_hand {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.com_card {
+  font-family: sans-serif;
+  border-radius: 4px;
+  border: 1px solid black;
+  width: 32px;
+  height: 45px;
+  margin-right: 3px;
+  background-color : #ffffff;
+  background-image:
+    repeating-linear-gradient( 45deg,rgba(0, 135, 255, 0.5) 0px 4px,	transparent 4px 10px),
+    repeating-linear-gradient( -45deg,rgba(95, 255, 0, 0.5) 0px 4px,	transparent 4px 10px);
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  height: 50px;
+}
+
+.board_card {
+  font-family: sans-serif;
+  border-radius: 6px;
+  border: 2px solid black;
+  background-color: white;
+  width: 29px;
+  height: 36px;
+  padding-top:8px;
+  margin-right: 2px;
+  text-align: center;
+}
+
+.board_card div {
+  line-height: 1em;
+  font-size: 14px;
+}
+
+.msg_box {
+  text-align: center;
+  padding: 12px 0px 12px 0px;
+  font-size: 1.2rem;
+  height: 1em;
+}
+
+#sum_box {
+  text-align: right;
+  padding: 0px 12px 4px 0px;
+  font-size: 2rem;
+}
+
+#sum_box::before {
+  white-space:pre;
+  content: '= ';
+}
+
+.com_and_score {
+  display: flex;
+  justify-content: space-between;
+}
+
+#score {
+  text-align: right;
+  font-size: 2rem;
+}
+
+#round_count {
+}
+#round_count::after {
+  content: '\1D411';
+}
+
+#face {
+  font-size: 2rem;
+  margin-right: 0.5rem;
+}
+
+.rulebook {
+  padding: 1rem 1rem 3rem 1rem;
+  margin: 1rem;
+  border-radius: 12px;
+  background-color: white;
+}
+
+.rulebook h2 {
+  border-left: 0.5em solid black;
+  border-bottom: 1px solid black;
+  padding-left: 0.5em;
+}
+
+.rulebook h3 {
+  border-left: 0.3em solid black;
+  padding-left: 0.3em;
+  margin-top: 2em;
+}
+
+.pass_and_cheat {
+  display: flex;
+  justify-content: space-between;
+}
+
+#pass_button {
+  font-size: 20px;
+  border: 1px solid darkred;
+  border-radius: 6px;
+  background-color: red;
+  color: white;
+  padding: 4px 16px 4px 16px;
+  margin-top: 16px;
+}
+
+#pass_button[disabled] {
+  border: 1px solid gray;
+  background-color: silver;
+  color: gray;
+}
+
+#cheat_button {
+  border: 1px solid gray;
+  background-color: var(--base-col);
+  color: black;
+  padding: 0px 6px 0px 6px;
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+#cheat_button::before {
+  content: '\13079';
+}
+
+.counter {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.counter th {
+  background-color: silver;
+}
+
+.counter td {
+  background-color: white;
+}
+
+
+.counter th, .counter td {
+  border: 1px solid black;
+  width: 2rem;
+}
+
+</style>
+    <script type="module" src="41.js"></script>
+  </head>
+  <body>
+    <div id="game_board">
+      <div class="com_and_score" style="visibility:hidden">
+        <div class="com_hand">
+          <div id="face">&#x1f642;</div>
+          <div class="com_card" id="com_hand_1" style="visibility:hidden"></div>
+          <div class="com_card" id="com_hand_2" style="visibility:hidden"></div>
+          <div class="com_card" id="com_hand_3" style="visibility:hidden"></div>
+          <div class="com_card" id="com_hand_4" style="visibility:hidden"></div>
+          <div class="com_card" id="com_hand_5" style="visibility:hidden"></div>
+          <div class="com_card" id="com_hand_6" style="visibility:hidden"></div>
+        </div>
+        <div id="round_count">1</div>
+        <div id="score">100 vs 100</div>
+      </div>
+      <div class="msg_box">
+        <div id="msg"></div>
+        <div id="start_menu">
+          <select id="select_box">
+          </select>
+          <button id="start_button">Start</button>
+        </div>
+      </div>
+      <div class="board">
+        <div class="board_card" id="ba_0"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_1"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_2"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_3"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_4"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_5"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_6"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_7"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_8"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_9"  style="visibility:hidden"></div>
+        <div class="board_card" id="ba_10" style="visibility:hidden"></div>
+        <div class="board_card" id="ba_11" style="visibility:hidden"></div>
+        <div class="board_card" id="ba_12" style="visibility:hidden"></div>
+      </div>
+      <div id="sum_box" style="visibility:hidden">0</div>
+      <div class="player_hand">
+        <button class="player_card" id="hand_0" style="visibility:hidden"></button>
+        <button class="player_card" id="hand_1" style="visibility:hidden"></button>
+        <button class="player_card" id="hand_2" style="visibility:hidden"></button>
+        <button class="player_card" id="hand_3" style="visibility:hidden"></button>
+        <button class="player_card" id="hand_4" style="visibility:hidden"></button>
+        <button class="player_card" id="hand_5" style="visibility:hidden"></button>
+      </div>
+      <div class="pass_and_cheat" style="visibility:hidden">
+        <button id="cheat_button"></button>
+        <button id="pass_button">PASS</button>
+      </div>
+      <div style="width:100%;text-align:center;margin-top:14px">
+        <table class="counter" style="visibility:hidden">
+          <tr>
+            <th>J</th>
+            <th>Q</th>
+            <th>A</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>K</th>
+          </tr>
+          <tr>
+            <td id="tbl_11">4</td>
+            <td id="tbl_0">4</td>
+            <td id="tbl_1">4</td>
+            <td id="tbl_2">4</td>
+            <td id="tbl_3">4</td>
+            <td id="tbl_4">4</td>
+            <td id="tbl_5">4</td>
+            <td id="tbl_6">4</td>
+            <td id="tbl_7">4</td>
+            <td id="tbl_8">4</td>
+            <td id="tbl_9">4</td>
+            <td id="tbl_10">4</td>
+            <td id="tbl_12">4</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="rulebook">
+      <h2>41 forty-one</h2>
+　４１（フォーティ・ワン）はトランプ研究家の草場純氏が英国のクリベッジを元に考案した２人用の足し算ゲームで、いかに相手を「パス」させるかの睨み合いが楽しい傑作です。ルールは草場氏の著書「夢中になる！　トランプの本（主婦の友社）」を参考にしていますが、コンピュータを相手に戦う点を踏まえ、ここでは以下のようなオリジナル・バリアントを採用しています。<br>
+<ol>
+  <li>ラウンドの終了時、残った手札は伏せて捨て、相手に見せない</li>
+  <li>パスはいつでもできる</li>
+</ol>
+<small>　※上記に加え、オリジナルルールで「双方のパス」としている説明を、このゲームでは「フィニッシュ」と言い換えています。</small><br>
+<br>
+　上記のバリアントは対コンピュータ用のルールですので、仲間同士で遊ぶ場合は原著を入手し、人間が楽しむために設計された<b>本来のルール</b>を楽しんでください。<br>
+<br>
+　このアプリは 2023 年版の Firefox および 2022年の Chrome で動作確認しています。<br>
+<h3>使う道具と参加人数</h3>
+　普通のトランプ５２枚を使います。ジョーカーは使いません。<br>
+　２人専用のゲームです。<br>
+<h3>目的</h3>
+　場に出したカードの数字で足し算し、その合計がゼロより大きく、なおかつ１の位が１になるようにします。<br>
+　合計が１、１１、２１、３１なら１ポイントが手に入ります。合計が４１なら<b>２ポイント</b>です。<br>
+　ただし、足し算の合計は<b>４１以下でなければならない</b>し、合計を超えてしまうような手札しかないなら、「パス」をするしかありません。パスをすると<b>相手に</b>１ポイントが入ってしまいます。<br>
+<br>
+　こうしてポイントを競い、全４回戦をプレイして合計点が多いほうの勝ちです。同点なら引き分けです。<br>
+<h3>ディール</h3>
+　適当に決めたプレイヤーが最初のディーラー（手札を配る人）です。ディーラーはそれぞれのプレイヤーに６枚の手札を配り、さらに１枚のカードを表向きで場に出します。このカードがＡだった場合、ディーラーは<b>ただちに１点</b>を得ます。<br>
+　残ったカードは脇に避け、次のゲームで配るときに使います。毎回１３枚のカードを使うので、４回戦を終えると山札が綺麗に無くなります。<br>
+<h3>プレイ</h3>
+　ノンディーラーから、パスをするか場に１枚の手札を出すかの２択です。<br>
+　どちらかを選択したら相手にターンが移ります。<br>
+<h3>１．パスをしたとき</h3>
+　パスは<b>いつでも可能</b>です。わざとパスしても構いませんが、パスをしてしまうと<b>相手に１点</b>を与えてしまいます。<br>
+<small>　※オリジナルのルールでは出せるのにパスすることは禁止されていますが、このアプリではいつでもパスが可能です。</small><br><br>
+　ただし、相手がパスをした直後の手番に自分もパスをしたいなら、パスの代わりに「フィニッシュ」と宣言します。フィニッシュはパスとは異なるので、相手に点数は入りません。<br>
+<br>
+　どちらかのプレイヤーが「フィニッシュ」したらそのラウンドは終わりになり、場のカードと残りの手札は<b>裏向きにして</b>捨てます。これらのカードは誰にも見ることができません。<br>
+<small>　※オリジナルのルールではラウンド終了時に互いの手札を見せることになっていますが、このアプリでは見せません。理由は後述します。</small><br><br>
+　なお、重要なルールとして、<b>手札が無くても手番は周ってきます</b>。手札がない場合はパス（相手が直前の手番でパスしているなら「フィニッシュ」）しかできません。<br>
+<br>
+　各ラウンドは、こうしてどちらかが「フィニッシュ」を宣言するまで終わりません。パスを巡る熱い駆け引きが４１というゲームの最大の魅力です。<br>
+<br>
+　ラウンドが終了したらディーラーを交代して残りの手札を配ります。毎ラウンド１３枚の山札が消費されるので、４ラウンドが終わると１３ × ４ = ５２で、山札が綺麗に無くなります。<br>
+　累計得点の多いほうが勝ちです。<br>
+<h3>２．カードをプレイしたとき</h3>
+　手札を場に出したら、それまでに場へ出されたカードの合計値を算出します。このとき、出されたカードは次のように数えます。<br>
+<ul>
+  <li>Ａ……１</li>
+  <li>２から１０……書いてある通りの数字</li>
+  <li>Ｊ……マイナス１</li>
+  <li>Ｑ……ゼロ</li>
+  <li>Ｋ……直前に出されたＫ以外のカードと同じ数値</li>
+</ul>
+　スート（マーク）は数値にまったく関係ありません。ＪとＱはマイナスやゼロになるだけでシンプルですが、Ｋの札は特殊効果を持つことに注意してください。<br>
+<br>
+　先に述べたように合計値の１ケタ目が１なら得点です。Ｊの効果によって合計がマイナスになることがありますが、<b>マイナス１では得点になりません</b>。<br>
+<ul>
+  <li>１……１点</li>
+  <li>１１……１点</li>
+  <li>２１……１点</li>
+  <li>３１……１点</li>
+  <li>４１……<b>２点</b></li>
+</ul>
+　プレイでは、<b>合計４１</b>を超えてしまうような手札の出し方は<b>できません</b>。どれを出しても４２以上になってしまうなら「パス」するほかありません。<br>
+<h3>プレイの例</h3>
+　最も奇妙な効果を持つカードはＫでしょう。その説明を兼ねて、以下にプレイの例を示します。<br>
+<ul>
+  <li>最初にディーラーが運良くＡをめくりました。合計は「１」なので、ディーラーが１点を得ます。</li>
+  <li>ノンディーラーからプレイを始めます。</li>
+  <li>ノンディーラーは１０を出しました。１＋１０で、場は合計１１です。ノンディーラーは１点を得ます。</li>
+  <li>ここでディーラーが「Ｋ」を出しました。直前は１０のカードなので、<b>このＫは１０と同じ数値</b>になります。合計２１になり、ディーラーは１点を得ました。</li>
+  <li>そうしてしばらくカードを出し合っていると、場の合計が３９になりました。</li>
+  <li>ここで、ディーラーが初めて「パス」をします。ノンディーラーに１点入ります。</li>
+  <li>ノンディーラーは２のカードを出しました。合計が４１のため、２点を得ます。</li>
+  <li>ノンディーラーがプレイしたので再びディーラーのターンです。ディーラーはカードを出せず「パス」をしました。<b>また１点が</b>ノンディーラーに入ります。</li>
+  <li>ノンディーラーは、さらにＱを出しました。４１＋ゼロで、合計４１です。ノンディーラーは２点を獲得しました。</li>
+  <li>そして再びディーラーのターンですが……ここでディーラーはＫを出しました。直前のカードはＱなので、<b>このカードはゼロ</b>になります。合計は４１のままなので、ディーラーに２点が入ります！</li>
+  <li>続くプレイヤーには手札がありませんでした。仕方なく「パス」をします。ディーラーに１点が入ります。</li>
+  <li>ディーラーのターンです。ディーラーは再びＫを出します。Ｑ、Ｋ、Ｋと出されたので、<b>このＫもやはりゼロ</b>です。合計は４１のままなので、ディーラーは２点を得ます。</li>
+  <li>ノンディーラーには手札がありませんが、誰も「フィニッシュ」していないので、またノンディーラーのターンです。「パス」以外にできないのでパスし、ティーラーに１点が入ります！</li>
+  <li>またディーラーのターンですが、ディーラーも手札を出せません。ノンディーラーが「パス」した直後なので、ディーラーはようやく「フィニッシュ」を宣言しました。フィニッシュはパスではないため、<b>得点のやりとりはありません</b>。</li>
+  <li>ラウンド終了です。お互いに残った手札を<b>裏向きに伏せて捨て</b>、ディーラーを交代して新しい手札を配ります。</li>
+</ul>
+<h3>最初のＫ</h3>
+　最初にディーラーがめくったカードがＫだった時は、最初に出されたＫ以外のカードになります。言い換えるなら、Ｋではないカードが出るまで合計値はゼロのまま保留になります。<br>
+　例えば場にめくられた最初のカードがＫで、次のプレイヤーもＫを出し、その次に７が出された場合、ここでようやく２枚のＫは７と数えられ、合計は「７＋７＋７＝２１」になります。足し算の最後にある７は、今出された実物の７です。<br>
+<h3>ゲーム画面の説明</h3>
+　対戦相手を選んで「Start」を押すとゲームが始まります。ディールや合計値の算出は自動で進みます。<br>
+<br>
+　プレイ中、対戦相手のプログラムは<b>一切のチート行為をしません</b>。プログラムはコンピュータが有利なように手札を入れ替えたりしませんし、思考ルーチンはあなたの手札を覗き見たりしません。しかしなにしろコンピュータなので、対戦相手は<b>ゴリゴリにカウンティング</b>しやがりますし、<b>覚えたことを絶対に忘れません</b>。<br>
+<br>
+　これだとさすがにヒトが不利なので、このアプリでは最初に述べたバリアントを採用することにしました。ラウンドの終了時に、<b>残った手札は伏せて捨てる</b>というルールがそれです。<br>
+　このルールによってコンピュータは完全なカウンティングが不可能になり、ゲームにゆらぎを作れますが、そうして手札を隠して捨てる場合、オリジナル・ルールにある「出せるのに出さないのはダメ」という条件は検証不能になってしまいます。よって、<b>パスはいつでも可能</b>というルールも追加しました。<br>
+　これらのバリアントはコンピュータが相手だからこそのものです。人間同士で遊ぶ場合はオリジナル・ルールに従ってください。「出したくないのに出さなきゃダメなの？」というジレンマがゲームに追加され、人間のために創作されたこのゲーム本来の楽しさを味わえます。<br>
+<br>
+　ゲーム画面ではヒトの不利をさらに緩和するため、チートボタンも用意しています。<br>
+　コンピュータに勝てないときは、左下の目玉ボタンを押してみてください。これまでにあなたの視点で見ることができたすべてのカード（場に出されたカードと自分の手札）を<b>除いた</b>、ルール上合理的に推論可能な残りカードの枚数が表示されます。<br>
+　これは対戦相手がカウンティングしているデータのプレイヤーバージョンです。あるラウンドで場に出されなかった手札は自分だけの情報になるので、捨て札が相手のカウンティングを乱すことができるのを確認できるでしょう。先述の通り対戦相手はチートをせず、自分の視点から見た同様の情報<b>だけ</b>を参考に戦略を決めていますから、同じ土俵で知恵比べができます。<br>
+<h3>基本的な戦略</h3>
+　上に述べた通り、最後はカウンティングが決め手になるゲームですが、記憶力を使わずとも戦う道は用意されています。<br>
+　１０と絵札、それにＡなどの小さいカードは、得点できなければ温存するべきです。それ以外の手札は、５と６、７と４、８と３、９と２という組み合わせを意識して早めに処分してみてください。アリスとビリーはカウンティングせず、この戦略だけで戦っています。<br>
+　ここでさらに１手先読みし、カウンティングしたデータを元に相手の出方を予想できれば勝率は急上昇するでしょう。例えば合計の１ケタ目が９で、手札に８がある場合、相手の手札に４が無いとわかっているなら（もしくは持っている確率が低いなら）安心して大きな数字を処分できます。<br>
+<br>
+　パスはいつでも可能なので、最終ラウンドで相手がパスしたとき、自分の得点が上回っているなら即座に「フィニッシュ」して勝つことができます。これは元々のルールには無い要素で、対戦相手はこの「即死戦略」を知っています。最終ラウンドで得点が上回っているなら余分な手札を出さず、相手に「パス」をさせるために１０などの大きなカードを連打するのもひとつの手でしょう。逆に下回っているなら、即死に繋がる「パス」だけは回避できるよう粘るべきです。<br>
+<br>
+<center><a href="https://github.com/hoeg1/forty-one/">github Project page</a></center>
+    </div>
+  </body>
+</html>
+
