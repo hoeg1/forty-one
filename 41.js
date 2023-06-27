@@ -619,22 +619,6 @@ class Player {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// 得点できるカードを探す
-//   得点できるなら：
-//     そのうち、絵札は優先順位を下げる
-//       絵札しかないならK > J > Qの優先順位で出す
-//     絵札が無いなら、
-//       ９＞８＞７＞６＞５＞４＞３＞２＞１で出す
-//       １０は、合計が３１より小さいならｘと同程度の評価
-//   得点できなければ：
-//     プレイしたあと、相手が得点する可能性を計算する
-//       マイナス１すると得点＝＞Ｊの数
-//       プラス０だと得点＝＞Ｑの数
-//       プラス１〜９だと得点＝＞その数。ただし、合計が４１より小のときだけ。
-//       プラス１０だと得点＝＞１０の数。ただし合計が３１より小のときだけ
-//       前と同じ数＝＞Ｋの数
-//       パス＝＞パス中なら０点、でなければマイナス１点
-
 class Com0 {
   constructor(name, face = 0) {
     this.name = name;
@@ -760,11 +744,7 @@ class RndCom {
   constructor(name) {
     this.name = name;
   }
-  think(round, hand, _info, _n_ophand, n_ba, pass, score, view) {
-    if (round == 4 && pass && score[0] < score[1]) {
-      view.set_face('www');
-      return 0n;
-    }
+  think(_round, hand, _info, _n_ophand, n_ba, pass, _score, view) {
     const lst = [ {pt: -1, bit: 0n } ];
     for (const card of hand.ranks()) {
       const ba = new Rule41(n_ba);
