@@ -1,0 +1,180 @@
+* {
+  font-family: "SF Mono", Monaco, Menlo, Consolas, "Courier New", monospace;
+}
+
+html {
+  -webkit-text-size-adjust: 100%; /* 画面回転時の文字サイズ自動調整を防ぐ */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* タップ時の青い背景を消す */
+}
+
+body {
+  margin: 0;
+  background-color: darkgreen;
+  padding-bottom: constant(safe-area-inset-bottom); /* iOS 11.2以前用 */
+  padding-bottom: env(safe-area-inset-bottom); /* iOS 11.3以降用 */
+}
+
+
+.container {
+  margin: 0 auto;
+  width: 100svmin;
+  text-align: center;
+
+  .content {
+    height: 120svmin;
+     /*background-color: red; */
+
+    --card-w: 11svmin;
+    --card-h: 16svmin;
+    --fs: 7svmin;
+
+    .card {
+      display: inline-block;
+      width:  calc(var(--card-w) - 2svmin);
+      height: calc(var(--card-h) - 2svmin);
+      padding: 0;
+      margin: 0;
+      text-align: center;
+      border: 1svmin solid white;
+      border-radius: 2svmin;
+      color: white;
+      font-size: var(--fs);
+
+    }
+    .blank {
+      border: 1svmin solid rgba(0,0,0, 0.3);
+      background-color: darkgreen;
+    }
+    .blank::before { white-space: pre; content: ' '; }
+    .sn {
+      background-image: linear-gradient(150deg, rgba(247, 166, 12, 1) 10%,
+        rgba(255, 34, 87, 1) 40%,
+        rgba(154, 39, 238, 1) 68%,
+        rgba(35, 102, 247, 1) 90%);
+    }
+    .sn::before { white-space: pre; content: ' '; }
+    .s0 { background-color: crimson; }
+    .s1 { background-color: orange; }
+    .s2 { background-color: green; }
+    .s3 { background-color: darkblue; }
+     .r0::before { white-space: pre; content: ' '; }
+     .r1::before { content: 'A';  }
+     .r2::before { content: '2';  }  .r3::before { content: '3'; }
+     .r4::before { content: '4';  }  .r5::before { content: '5'; }
+     .r6::before { content: '6';  }  .r7::before { content: '7'; }
+     .r8::before { content: '8';  }  .r9::before { content: '9'; }
+    .r10::before { content: '10'; } .r11::before { content: 'J'; }
+    .r12::before { content: 'Q';  } .r13::before { content: 'K'; }
+
+    h1 {
+      font-size: 10svmin;
+      color: white;
+      text-align: center;
+      margin: 0;
+      margin-bottom: 3svmin;
+      border-bottom: 0.4svmin solid white;
+      font-style: Italic;
+      font-family: cursive;
+      line-height: 10svmin;
+      padding-top: 3svmin;
+    }
+
+    button.pass-button {
+      height: 1.2rem;
+      background-color: rgba(0,0,0,  0.1);
+      border: 1px solid rgba(0,0,0,  0.2);
+      border-radius: 2rem;
+      color: white;
+      letter-spacing: 0;
+      width: 98%;
+      font-size: 0.6rem;
+    }
+    button.start-button {
+      height: 1.2rem;
+      background-color: rgba(0,0,0,  0.1);
+      border: 1px solid rgba(0,0,0,  0.2);
+      border-radius: 2rem;
+      color: white;
+      width: 20%;
+    }
+    label {
+      color: white;
+      font-size: 0.8rem;
+    }
+    select.speed-sel {
+      width: 15%;
+    }
+    select.cpu-sel {
+      width: 15%;
+    }
+    select.deal-sel {
+      width: 17%;
+    }
+
+    table {
+      margin: 0 auto;
+      padding: 0;
+      border-spacing: 0;
+      width: 98svmin;
+      tr {
+        margin: 0;
+        padding: 0;
+      }
+      th {
+        color: white;
+        height: 1.8rem;
+      }
+      td {
+        text-align: center;
+        margin: 0 auto;
+        padding: 0;
+        font-size: 100%;
+      }
+      .hand-area {
+        width: 80svmin;
+        height: 18svmin;
+      }
+      .ba-area {
+        height: 18svmin;
+      }
+      #sum-th {
+        height: 1.2rem;
+        /*font-size: 0.8rem;*/
+        font-size: 100%;
+      }
+      #msg-area {
+        height: 2rem;
+        font-size: 100%;
+      }
+    }
+    .td-info {
+      width: calc(var(--card-w) * 1.5);
+      text-align: right;
+      color: white;
+      font-weight: bold;
+        letter-spacing: 0em;
+        margin: 0;
+        padding: 0;
+    }
+  }
+
+  .rule {
+    padding: 4svmin;
+    color: white;
+    text-align: left;
+    h1 {
+      font-size: 4.5svmin;
+      border-left: 2svmin solid white;
+      padding-left: 2svmin;
+    }
+    h2 {
+      font-size: 3.5svmin;
+      border-left: 1.5svmin solid white;
+      padding-left: 1.5svmin;
+    }
+    p {
+      font-size: 3.4svmin;
+    }
+  }
+}
+
