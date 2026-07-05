@@ -107,6 +107,7 @@ export const get_sum = ba => ba.reduce((acc, card) => {
 export class Rand {
   /**
    * 乱数クラス
+   * @constructor
    * @param {number} seed   乱数の種
    */
   constructor(seed=Math.trunc(Math.random() * 123456789)+1) {
@@ -180,6 +181,7 @@ export class Player {
    * プレイヤーの状態を管理
    * 手札や得点を持たせる
    * 継承して使う
+   * @constructor
    * @param {string} name  このプレイヤーの名前
    * @param {boolean} is_human  このプレイヤーは人間か？
    */
@@ -212,10 +214,25 @@ export class Player {
   }
 
   /**
+   * １ディールが始まったときに呼び出す
+   * 継承先でなにかしてもよい
+   */
+  on_deal_start() { }
+
+  /**
    * 手札が配られたとき呼び出す
    * 継承先でなにかしてもよい
    */
   on_deal() { }
+
+  /**
+   * 相手が手札をプレイしたとき呼び出す
+   * 最初の１枚がめくられたときやラウンド終了時にも呼ばれる
+   * 継承先でカウンティングに使ってもよい
+   * @param {number} card  プレイされたカード
+   * @param {boolean} is_first  最初に場にめくられたカードやラウンド終了時か
+   */
+  on_play(card, is_first=false) { }
 
   /**
    * プレイする手札を決める
@@ -241,57 +258,11 @@ export class Player {
 }
 
 
-export class CPU_lv1 extends Player {
-  /**
-   * @param {Rand} rnd
-   */
-  constructor(rnd) {
-    const NAMES = [
-      'こそアド',
-      'サム',
-      'なごみん',
-      '和子さん',
-      'プラッス',
-      'オキシドール',
-      'たすおくん',
-      'ゴウ・ケイテン',
-      '41歳公務員',
-    ];
-    const name = NAMES[ rnd.rand(NAMES.length) ];
-    super(name, false);
-    const p = [11, 13, 17, 19, 23][ rnd.rand(5) ];
-    const q = [2, 3, 5, 7, 11][ rnd.rand(5) ];
-    // name で評価表をずらす
-    //                     A   2   3   4   5   6   7   8   9   10  J  Q  K
-    this.rank_score = [0, 10, 20, 30, 50, 60, 70, 80, 90, 100, 40, 1, 0, 2].map(
-      (x, i)=> x + (name.charCodeAt(i % name.length) % p) - q);
-  }
-  think(fo) {
-    // 評価表方式で出すカードを決める
-    let cur_pt = -9999;
-    let cur_card = PASS; // PASS = 0
-    for (let card of this.hand) {
-      const ba = [...fo.ba, card];
-      const sum = get_sum(ba);
-      if (sum > 41) continue; // どれを出してもだめならパスになる
-      const r = to_rank(card);
-      // ランク評価：得点できるなら追加点
-      const p = this.rank_score[r] +
-        (sum > 0 && sum % 10 === 1? (sum === 41? 300: 150): 0);
-      if (p > cur_pt) {
-        cur_pt = p;
-        cur_card = card;
-      }
-    }
-    // どれも42以上 or 手札を持ってないなら cur_card は 0(PASS) のまま
-    return cur_card;
-  }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 class Turn {
   /**
    * 手番（番号）を管理
+   * @constructor
    * @param {number} start_player   最初の手番
    */
   constructor(start_player) {
@@ -338,6 +309,7 @@ class Turn {
 export class FortyOne {
   /**
    * ゲームの状態を管理
+   * @constructor
    * @param {Array<Player>} players  プレイヤーの配列
    * @param {Rand} rnd               乱数生成器
    * @param {number} max_deal        何ディール（各４ラウンド）するか
@@ -380,6 +352,8 @@ export class FortyOne {
       this.rnd.shuffle(this.deck);
       // ディールを数える
       this.deal_count += 1;
+      this.players[0].on_deal_start();
+      this.players[1].on_deal_start();
     }
     //
     this.round_count += 1;
@@ -394,6 +368,8 @@ export class FortyOne {
     this.players[1].set_hand( h1 );
     //
     this.ba = [ this.deck.pop() ]; // A なら得点
+    this.players[0].on_play( this.ba[0], true); // 最初の１枚を通知
+    this.players[1].on_play( this.ba[0], true); // 最初の１枚を通知
     //
     this.is_pass = false; // パスしているか
     //
@@ -434,11 +410,15 @@ export class FortyOne {
       }
       if (this.is_pass) {
         // ラウンド終了
+        // // 余った手札を通知
+        for (let c of this.players[0].hand) this.players[1].on_play(c, true);
+        for (let c of this.players[1].hand) this.players[0].on_play(c, true);
         return -2;
       } else {
         this.is_pass = true;
         this.turn.next(); // 手番を進めてから
         this.teban.add_score(1); // パスされたプレイヤーに１点
+        this.teban.on_play(PASS); // 相手がパスしたと通知
         return -1;
       }
     } else {
@@ -463,6 +443,7 @@ export class FortyOne {
       //
       this.turn.next();
       this.is_pass = false;
+      this.teban.on_play(card); // 相手が使ったカードを通知
       return sc;
     }
   }
@@ -497,7 +478,7 @@ export class FortyOne {
    * @return {number} 点差を返す
    */
   get_tensa() {
-    return Math.abs(this.players[0].socre - this.players[1].score);
+    return Math.abs(this.players[0].score - this.players[1].score);
   }
 }
 

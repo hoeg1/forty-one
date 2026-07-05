@@ -6,8 +6,15 @@ import { parseArgs, styleText } from 'node:util';
 import {
   PASS, VERSION,
   to_suit, to_rank, get_sum, to_sr,
-  Rand, FortyOne, Player, CPU_lv1,
+  Rand, FortyOne, Player,
 } from './src/41.js';
+
+import {
+  CPU_lv0,
+  CPU_lv1,
+  CPU_lv2,
+} from './src/cpu.js';
+
 
 const sleep = ms => new Promise(res=>setTimeout(res, ms));
 const press_enter = async () => {
@@ -119,7 +126,7 @@ const game_loop = async fo => {
           console.log(`  ${pl.name}: ${pl.score}pt`);
         }
         const win = fo.get_winner();
-        console.log((win == ''? '\n-> 引き分けです': '\n-> ' + win + ` の +${fo.tensa} 点勝ち`) +
+        console.log((win == ''? '\n-> 引き分けです': '\n-> ' + win + ` の +${fo.get_tensa()} 点勝ち`) +
           styleText('dim', ` (seed: 0x${fo.rnd.seed.toString(16)})`));
         break deal_loop;
       case 'next deal':
@@ -182,6 +189,7 @@ const show_help = () => {
 
   --seed, -s N       ゲームのシード値を設定。N は自然数で、16進数表記も可
   --deals, -d N      ディール数を設定。N は 1 以上の自然数で、初期値は 2
+  --level, -l N      CPU の強さを指定。N は 0, 1, 2 のどれか。初期値は 1
 
 【操作方法】
 　手番になったら > のあとにプレイしたい手札を書き込んでエンターします。大文字・
@@ -307,6 +315,10 @@ const show_rule = () => {
         type: 'string',
         short: 'd',
       },
+      level: {
+        type: 'string',
+        short: 'l',
+      },
     },
   });
   if (values.version) { show_version(); exit(); }
@@ -331,9 +343,20 @@ const show_rule = () => {
     }
     max_deal = s;
   }
+  let cpu_level = 1;
+  if (values.level !== undefined) {
+    const s = parseInt(values.level);
+    if (s === NaN || s < 0 || s >= 3) {
+      console.error(`'${values.level}' は無効なレベル指定です`);
+      exit();
+    }
+    cpu_level = s;
+  }
 
   const rnd = new Rand(seed);
-  const cpu = new CPU_lv1(rnd);
+  const cpu = cpu_level === 0? new CPU_lv0(rnd):
+    cpu_level === 1? new CPU_lv1(rnd):
+    new CPU_lv2(rnd);
   cpu.on_turn = make_cpu_turn(cpu);
   const pl = [new Human(), cpu];
   const fo = new FortyOne(pl, rnd, max_deal);

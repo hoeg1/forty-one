@@ -4,44 +4,19 @@ import {
   get_sum, to_sr,
   Rand,
   Player,
-  CPU_lv1,
 } from "./41.js";
+
+import {
+  CPU_lv0,
+  CPU_lv1,
+  CPU_lv2,
+} from "./cpu.js";
 
 let g_speed = 1000;
 const sleep = ms => new Promise(res=>setTimeout(res, ms));
 const CARD_STYLES = ['r0','r1','r2','r3','r4','r5','r6','r7',
       'r8','r9','r10','r11','r12','r13',
       'sn','s0','s1','s2','s3'];
-
-class CPU_lv0 extends Player {
-  constructor(rnd) {
-    const NAMES = ['らんだま', 'てけとー', 'てなりん'];
-    super(NAMES[ rnd.rand(NAMES.length) ], false);
-  }
-  think(fo) {
-    const pts = [[], [], []];
-    for (let c of this.hand) {
-      const b = [...fo.ba, c];
-      const sum = get_sum(b);
-      if (sum > 41) continue;
-      if (sum > 0 && sum % 10 === 1) {
-        pts[sum === 41? 2: 1].push(c);
-      } else {
-        pts[0].push(c);
-      }
-    }
-    if (pts[2].length !== 0) {
-      return pts[2][ fo.rand( pts[2].length ) ];
-    }
-    if (pts[1].length !== 0) {
-      return pts[1][ fo.rand( pts[1].length ) ];
-    }
-    if (pts[0].length !== 0) {
-      return pts[0][ fo.rand( pts[0].length ) ];
-    }
-    return PASS;
-  }
-}
 
 
 const mes = msg => {
@@ -237,7 +212,8 @@ const main_loop = async (fo) => {
     switch (end) {
       case 'gameover':
         const win = fo.get_winner();
-        mes(`ゲーム終了 - ${win==''?'引き分けです': win+' の勝ち'}`);
+        mes(`ゲーム終了 - ${win==''?'引き分けです':
+          `${win} の ${fo.get_tensa()}点 勝ちです`}`);
         sum_mes(`${cpu.name} の得点: ${cpu.score}pt`);
         await wait_button('END');
         break deal_loop;
@@ -314,7 +290,9 @@ window.onload = () => {
 
     const rnd = new Rand();
     console.log(`seed: 0x${rnd.seed.toString(16)}`);
-    const cpu = cpu_type === 0? new CPU_lv0(rnd): new CPU_lv1(rnd);
+    const cpu = cpu_type === 0? new CPU_lv0(rnd):
+      cpu_type === 1? new CPU_lv1(rnd):
+      new CPU_lv2(rnd);
     cpu.on_turn = make_on_turn(cpu);
     const pl = [ new Human(), cpu ];
 
