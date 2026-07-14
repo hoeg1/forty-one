@@ -139,11 +139,11 @@ class Human extends Player {
         this.evt_cards.push([c, e]);
       }
       this.evt_pass = () => {
-        if (fo.pass_only()) {
+        if (!fo.opt_pass && !fo.pass_only()) {
+          mes('パスは他に選択肢が無いときだけ可能です');
+        } else {
           this.remove_event();
           solv(PASS);
-        } else {
-          mes('パスは他に選択肢が無いときだけ可能です');
         }
       };
       pass.addEventListener('click', this.evt_pass);
@@ -287,6 +287,7 @@ window.onload = () => {
     g_speed = parseInt(document.getElementById('speed_sel').value);
     const cpu_type = parseInt(document.getElementById('cpu_lv_sel').value);
     const max_deal = parseInt(document.getElementById('max_deal_sel').value);
+    const opt_pass = document.getElementById('opt-pass').checked;
 
     const rnd = new Rand();
     console.log(`seed: 0x${rnd.seed.toString(16)}`);
@@ -296,7 +297,7 @@ window.onload = () => {
     cpu.on_turn = make_on_turn(cpu);
     const pl = [ new Human(), cpu ];
 
-    const fo = new FortyOne(pl, rnd, max_deal);
+    const fo = new FortyOne(pl, rnd, max_deal, opt_pass);
     await main_loop(fo);
 
     clean_up();

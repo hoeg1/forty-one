@@ -187,6 +187,8 @@ const show_help = () => {
   --help, -h         このヘルプを表示
   --rule, -r         詳しいルールを表示
 
+  --pass, -p         任意のパスを許す
+
   --seed, -s N       ゲームのシード値を設定。N は自然数で、16進数表記も可
   --deals, -d N      ディール数を設定。N は 1 以上の自然数で、初期値は 2
   --level, -l N      CPU の強さを指定。N は 0, 1, 2 のどれか。初期値は 1
@@ -289,6 +291,11 @@ const show_rule = () => {
 　２ディール以上遊ぶ場合は、一番最初のディーラーを交互に交代してディールを繰り
 返し、規定のディールをプレイし終わったとき累計点の多かったほうの勝ちです。同点
 なら引き分けです。
+
+【ヴァリアント：任意のパス】
+　通常ルールではパスはパスしかできないときにしか宣言できませんが、このヴァリア
+ントではいつでも宣言可能になります。当然、相手がパスをしている状態なら、任意に
+「終了」を宣言することもできます。
 `)
 };
 
@@ -306,6 +313,10 @@ const show_rule = () => {
       rule: {
         type: 'boolean',
         short: 'r',
+      },
+      pass: {
+        type: 'boolean',
+        short: 'p',
       },
       seed: {
         type: 'string',
@@ -359,7 +370,7 @@ const show_rule = () => {
     new CPU_lv2(rnd);
   cpu.on_turn = make_cpu_turn(cpu);
   const pl = [new Human(), cpu];
-  const fo = new FortyOne(pl, rnd, max_deal);
+  const fo = new FortyOne(pl, rnd, max_deal, values.pass? true: false);
 
   await game_loop(fo);
 })();

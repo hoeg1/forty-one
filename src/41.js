@@ -4,7 +4,7 @@
 //       主婦の友Books, ISBN978-4-07-258336-4
 
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 
 /**
@@ -313,12 +313,14 @@ export class FortyOne {
    * @param {Array<Player>} players  プレイヤーの配列
    * @param {Rand} rnd               乱数生成器
    * @param {number} max_deal        何ディール（各４ラウンド）するか
+   * @param {boolean} opt_pass       任意のパスを許すか
    * @returns {FortyOne}
    */
-  constructor(players, rnd, max_deal=1) {
-    this.players = players;
-    this.rnd = rnd;
-    this.rand = n => this.rnd.rand(n);
+  constructor(players, rnd, max_deal=1, opt_pass) {
+    this.players  = players;
+    this.rnd      = rnd;
+    this.rand     = n => this.rnd.rand(n);
+    this.opt_pass = opt_pass;
     //
     this.turn = new Turn(rnd.rand(2));
     this.max_deal = max_deal;
@@ -405,7 +407,7 @@ export class FortyOne {
    */
   play(card) {
     if (card === PASS) {
-      if (!this.pass_only()) {
+      if (!this.opt_pass && !this.pass_only()) {
         throw new Error('出せるカードがあるのにパスはできません');
       }
       if (this.is_pass) {

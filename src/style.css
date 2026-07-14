@@ -21,8 +21,8 @@ body {
   text-align: center;
 
   .content {
-    height: 120svmin;
-     /*background-color: red; */
+    height: 125svmin;
+    /* background-color: red; */
 
     --card-w: 11svmin;
     --card-h: 16svmin;
@@ -155,6 +155,9 @@ body {
         letter-spacing: 0em;
         margin: 0;
         padding: 0;
+    }
+    #option_box {
+      line-height: 1.6rem;
     }
   }
 
